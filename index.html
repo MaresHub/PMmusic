@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <style>
+      html {
+        font-size: 62.5%;
+        box-sizing: border-box;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-image: url("banner1.webp");
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        color: white;
+        font-size: 1.6rem;
+        padding-top: 6rem;
+        margin: 0;
+      }
+      .music-icon {
+        position: fixed;
+        top: 1.3rem;
+        left: 1rem;
+        font-size: 2.5rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 1rem;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 1001;
+        color: white;
+        transition: transform 0.3s;
+      }
+      .music-icon:hover {
+        transform: scale(1.1);
+      }
+      .music-player {
+        position: fixed;
+        top: 5rem;
+        left: 1rem;
+        background-color: rgba(0, 0, 0, 0.95);
+        padding: 2rem;
+        border-radius: 1rem;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1001;
+        width: 300px;
+      }
+      .music-player input {
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        border: none;
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
+      }
+      .music-player button {
+        padding: 0.7rem 1.2rem;
+        font-size: 1.4rem;
+        cursor: pointer;
+        border: none;
+        background-color: #4caf50;
+        color: white;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      #playerContainer button {
+        background-color: transparent;
+        color: white;
+        border: 1px solid white;
+        padding: 0.5rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      #playerContainer button:hover {
+        background-color: #4caf50;
+      }
+      iframe {
+        width: 100%;
+        height: 200px;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+      }
+      #controls {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+      #controls button {
+        background-color: #333;
+        border: none;
+        color: white;
+        font-size: 1.8rem;
+        border-radius: 50%;
+        width: 4rem;
+        height: 4rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      #controls button:hover {
+        background-color: #4caf50;
+      }
+      .volume-control {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+      }
+      .volume-control input {
+        width: 100px;
+      }
+      .navbar {
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.3);
+      }
+      .navbar__links {
+        display: flex;
+        gap: 1.5rem;
+      }
+      .navbar__link {
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: clamp(1.4rem, 2vw, 1.6rem);
+        transition: background-color 0.3s;
+      }
+      .navbar__link:hover {
+        background-color: #4caf50;
+      }
+      .navbar__toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        position: absolute;
+        right: 2rem;
+      }
+      .navbar__toggle-line {
+        height: 0.3rem;
+        width: 2.5rem;
+        background-color: white;
+        margin: 0.4rem 0;
+        transition: 0.4s;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          justify-content: space-between;
+        }
+        .navbar__toggle {
+          display: flex;
+        }
+        .navbar__links {
+          position: absolute;
+          top: 6rem;
+          left: 0;
+          width: 100%;
+          background-color: rgba(0, 0, 0, 0.95);
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          padding: 3rem 0;
+          display: none;
+        }
+        .navbar__links--active {
+          display: flex;
+        }
+        .music-icon {
+          font-size: 1.5rem;
+          top: 0.1rem;
+          left: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="music-icon" onclick="togglePlayer()">
+      <i class="fa-solid fa-music"></i>
+    </div>
+
+    <div class="music-player" id="musicPlayer">
+      <input
+        type="text"
+        id="musicSearch"
+        placeholder="Digite o nome da música"
+      />
+      <button onclick="searchMusic()">Buscar</button>
+      <div id="playerContainer"></div>
+      <div id="controls">
+        <button onclick="togglePlayPause()" id="pauseBtn">
+          <i class="fas fa-play"></i>
+        </button>
+        <button onclick="nextTrack()"><i class="fas fa-forward"></i></button>
+      </div>
+      <div class="volume-control">
+        <button onclick="changeVolume('down')">-</button>
+        <input
+          type="range"
+          id="volumeSlider"
+          min="0"
+          max="100"
+          value="100"
+          onchange="setVolume()"
+        />
+        <button onclick="changeVolume('up')">+</button>
+      </div>
+    </div>
+
+    <nav class="navbar">
+      <div class="navbar__links" id="navLinks">
+        <a href="Home.html" class="navbar__link">Home</a>
+        <a href="igrejas.html" class="navbar__link">Igrejas</a>
+        <a href="arrecadacao.html" class="navbar__link">Arrecadação</a>
+        <a href="Educa.html" class="navbar__link">EducaFlix</a>
+        <a href="palavra.html" class="navbar__link">Palavra</a>
+        <a href="Bíblia.html" class="navbar__link">Bíblia</a>
+      </div>
+      <div class="navbar__toggle" onclick="toggleMenu()">
+        <span class="navbar__toggle-line"></span>
+        <span class="navbar__toggle-line"></span>
+        <span class="navbar__toggle-line"></span>
+      </div>
+    </nav>
+
+    <script>
+      let currentVideoIndex = 0;
+      let videoList = [];
+      let isPlaying = false;
+      let currentVolume = 100;
+
+      function toggleMenu() {
+        document
+          .getElementById("navLinks")
+          .classList.toggle("navbar__links--active");
+      }
+
+      function togglePlayer() {
+        const player = document.getElementById("musicPlayer");
+        player.style.display =
+          player.style.display === "flex" ? "none" : "flex";
+      }
+
+      async function searchMusic() {
+        const query = document.getElementById("musicSearch").value.trim();
+        if (!query) return;
+
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=${encodeURIComponent(
+            query
+          )}&key=AIzaSyDTOQJb0BP3vTTl2zJn_q3R2kFQolALfkU`
+        );
+        const data = await response.json();
+        videoList = data.items.map((item) => item.id.videoId);
+        displayOptions(data.items);
+      }
+
+      function displayOptions(items) {
+        const container = document.getElementById("playerContainer");
+        container.innerHTML = "";
+
+        items.forEach((item, index) => {
+          const title = item.snippet.title;
+          const button = document.createElement("button");
+          button.textContent = title;
+          button.onclick = () => playVideo(index);
+          container.appendChild(button);
+        });
+      }
+
+      function playVideo(index) {
+        currentVideoIndex = index;
+        const videoId = videoList[index];
+        const iframe = `<iframe id="ytplayer" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        document.getElementById("playerContainer").innerHTML = iframe;
+        document.getElementById("controls").style.display = "flex";
+        isPlaying = true;
+        updatePlayButton();
+      }
+
+      function nextTrack() {
+        currentVideoIndex = (currentVideoIndex + 1) % videoList.length;
+        playVideo(currentVideoIndex);
+      }
+
+      function togglePlayPause() {
+        const iframe = document.querySelector("iframe");
+        if (!iframe) return;
+
+        const action = isPlaying ? "pauseVideo" : "playVideo";
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ event: "command", func: action, args: [] }),
+          "*"
+        );
+
+        isPlaying = !isPlaying;
+        updatePlayButton();
+      }
+
+      function updatePlayButton() {
+        const icon = document.querySelector("#pauseBtn i");
+        icon.className = isPlaying ? "fas fa-pause" : "fas fa-play";
+      }
+
+      function changeVolume(action) {
+        if (action === "up" && currentVolume < 100) {
+          currentVolume += 10;
+        } else if (action === "down" && currentVolume > 0) {
+          currentVolume -= 10;
+        }
+
+        document.getElementById("volumeSlider").value = currentVolume;
+        setVolume();
+      }
+
+      function setVolume() {
+        const iframe = document.querySelector("iframe");
+        if (!iframe) return;
+
+        const volume = document.getElementById("volumeSlider").value;
+        const volumeControl = {
+          event: "command",
+          func: "setVolume",
+          args: [volume],
+        };
+        iframe.contentWindow.postMessage(JSON.stringify(volumeControl), "*");
+      }
+    </script>
+  </body>
+</html>
